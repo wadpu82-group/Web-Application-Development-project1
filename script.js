@@ -653,12 +653,11 @@ function renderMenu(items){
 
     var isImg = isImagePath(item.img);
     var imgContent = isImg 
-      ? '<img data-src="' + item.img + '" src="" class="menu-image lazy-image" alt="' + item.name.replace(/"/g,'"') + '">'
+      ? '<img src="' + item.img + '" class="menu-image loaded" alt="' + item.name.replace(/"/g,'"') + '">'
       : '<div class="h-[180px] flex items-center justify-center text-6xl bg-orange-50">' + item.img + '</div>';
 
     card.innerHTML =
       '<div class="relative">' +
-        '<div class="skeleton h-[180px] absolute w-full"></div>' +
         imgContent +
         badges +
       '</div>' +
@@ -672,8 +671,6 @@ function renderMenu(items){
 
     container.appendChild(card);
   }
-
-  lazyLoad();
 }
 
 function lazyLoad(){

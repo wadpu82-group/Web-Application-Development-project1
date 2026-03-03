@@ -34,11 +34,11 @@ const MENU = [
 { id:24, name:"Kwetiau Goreng Seafood", price:26000, img:"assets/img/menu/noodles-kwetiau-goreng-seafood.jpg", cat:["noodles","seafood"], taste:"medium" },
 
 /* ================= SATAY ================= */
-{ id:46, name:"Chicken Satay", price:25000, img:"assets/images/satay/chicken-satay.png", cat:["satay"], taste:"medium" },
-{ id:47, name:"Mutton Satay", price:45000, img:"assets/images/satay/mutton-satay.png", cat:["satay"], taste:"medium" },
-{ id:48, name:"Taichan Satay", price:22000, img:"assets/images/satay/taichan-satay.png", cat:["satay","spicy"], taste:"spicy" },
-{ id:49, name:"Chicken Skin Satay", price:20000, img:"assets/images/satay/chicken-skin-satay.png", cat:["satay"], taste:"medium" },
-{ id:50, name:"Beef Satay Special", price:50000, img:"assets/images/satay/beef-satay-special.png", cat:["satay"], taste:"medium" },
+{ id:101, name:"Chicken Satay", price:25000, img:"assets/images/satay/chicken-satay.png", cat:["satay"], taste:"medium" },
+{ id:102, name:"Mutton Satay", price:45000, img:"assets/images/satay/mutton-satay.png", cat:["satay"], taste:"medium" },
+{ id:103, name:"Taichan Satay", price:22000, img:"assets/images/satay/taichan-satay.png", cat:["satay","spicy"], taste:"spicy" },
+{ id:104, name:"Chicken Skin Satay", price:20000, img:"assets/images/satay/chicken-skin-satay.png", cat:["satay"], taste:"medium" },
+{ id:105, name:"Beef Satay Special", price:50000, img:"assets/images/satay/beef-satay-special.png", cat:["satay"], taste:"medium" },
 
 /* ================= STEAK & GRILL ================= */
 { id:26, name:"Wagyu Tenderloin", price:250000, img:"assets/images/steak/wagyu-tenderloin.png", cat:["steak"], taste:"medium" },
@@ -154,6 +154,23 @@ if(localStorage.getItem("stock")){
   var savedStock = JSON.parse(localStorage.getItem("stock"));
   MENU.forEach(function(i) { if(savedStock[i.id]) i.stock = savedStock[i.id]; });
 }
+
+// Guard: warn when MENU ids are duplicated (can break edit/cart/find-by-id behavior)
+(function warnDuplicateMenuIds(){
+  var seen = {};
+  var duplicates = [];
+
+  for (var i = 0; i < MENU.length; i++) {
+    var id = MENU[i].id;
+    if (seen[id]) duplicates.push(id);
+    else seen[id] = true;
+  }
+
+  if (duplicates.length) {
+    var uniqueDupes = Array.from(new Set(duplicates));
+    console.warn("[MENU] Duplicate item ids detected:", uniqueDupes.join(", "));
+  }
+})();
 
 /* ================= SMART CHAT INTENT ENGINE ================= */
 
@@ -347,10 +364,19 @@ function isImagePath(img) {
   );
 }
 
-function getFoodImageFromItem(item){
-  if(item.photo) return item.photo;
-  return item.img;
+function getFallbackFoodImage(name) {
+  return "https://source.unsplash.com/600x400/?food," + encodeURIComponent(name || "menu");
 }
+
+function getFoodImageFromItem(item){
+  var src = (item && item.photo) ? item.photo : (item ? item.img : "");
+  return isImagePath(src) ? src : getFallbackFoodImage(item && item.name);
+}
+
+function getFoodImageOnError(itemName) {
+  return "this.onerror=null;this.src='" + getFallbackFoodImage(itemName).replace(/'/g, "\'") + "';";
+}
+
 
 var chatbotSelectedItems = [];
 var chatbotMinimized = false;
@@ -433,7 +459,7 @@ function filterMenuForChatbot(category) {
         '<div class="flex items-center justify-between py-2 border-b last:border-b-0">' +
           '<div class="flex items-center gap-2">' +
             (isImg 
-              ? '<img src="' + item.img + '" class="w-10 h-10 rounded-lg object-cover" alt="' + item.name + '">' 
+              ? '<img src="' + getFoodImageFromItem(item) + '" class="w-10 h-10 rounded-lg object-cover" alt="' + item.name + '" onerror="' + getFoodImageOnError(item.name) + '">' 
               : '<span class="text-lg">' + item.img + '</span>') +
             '<div>' +
               '<div class="text-xs font-medium">' + item.name + '</div>' +
@@ -494,7 +520,7 @@ function updateChatbotSelectedItems() {
       '<div class="flex items-center justify-between bg-orange-100 rounded-lg px-2 py-1">' +
         '<div class="flex items-center gap-2">' +
           (isImg 
-            ? '<img src="' + item.img + '" class="w-6 h-6 rounded object-cover" alt="' + item.name + '">' 
+            ? '<img src="' + getFoodImageFromItem(item) + '" class="w-6 h-6 rounded object-cover" alt="' + item.name + '" onerror="' + getFoodImageOnError(item.name) + '">' 
             : '<span>' + item.img + '</span>') +
           '<span class="text-xs">' + item.name + ' x' + item.qty + '</span>' +
         '</div>' +
@@ -653,7 +679,7 @@ function renderMenu(items){
 
     var isImg = isImagePath(item.img);
     var imgContent = isImg 
-      ? '<img src="' + item.img + '" class="menu-image loaded" alt="' + item.name.replace(/"/g,'"') + '">'
+      ? '<img src="' + getFoodImageFromItem(item) + '" class="menu-image loaded" alt="' + item.name.replace(/"/g,'"') + '" onerror="' + getFoodImageOnError(item.name) + '">'
       : '<div class="h-[180px] flex items-center justify-center text-6xl bg-orange-50">' + item.img + '</div>';
 
     card.innerHTML =
@@ -790,7 +816,7 @@ function updateCart(){
         '<div class="flex-1">' +
           '<div class="flex items-center gap-2">' +
             (isImg 
-              ? '<img src="' + item.img + '" class="w-10 h-10 rounded-lg object-cover" alt="' + item.name + '">' 
+              ? '<img src="' + getFoodImageFromItem(item) + '" class="w-10 h-10 rounded-lg object-cover" alt="' + item.name + '" onerror="' + getFoodImageOnError(item.name) + '">' 
               : '<span class="text-xl">' + item.img + '</span>') +
             '<span class="font-medium text-sm">' + item.name + '</span>' +
           '</div>' +
@@ -955,7 +981,7 @@ function appendMsg(text, sender, items) {
         '<div class="bg-slate-50 p-2 rounded-lg border flex items-center justify-between gap-4 font-normal text-slate-800">' +
           '<div class="flex items-center gap-2">' +
             (isImg 
-              ? '<img src="' + item.img + '" class="w-10 h-10 rounded-lg object-cover" alt="' + item.name + '">' 
+              ? '<img src="' + getFoodImageFromItem(item) + '" class="w-10 h-10 rounded-lg object-cover" alt="' + item.name + '" onerror="' + getFoodImageOnError(item.name) + '">' 
               : '<span class="text-xl">' + item.img + '</span>') +
             '<div class="text-[10px]">' +
               '<div class="font-bold">' + item.name + '</div>' +
@@ -976,3 +1002,4 @@ function appendMsg(text, sender, items) {
   container.appendChild(wrapper);
   container.scrollTop = container.scrollHeight;
 }
+

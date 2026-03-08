@@ -206,7 +206,11 @@ const CHATBOT_KEYWORDS = {
 
     spicy: ["tidak pedas", "ga pedas", "nggak pedas", "no spicy", "not spicy", "less spicy", "not too spicy", "not to spicy", "not too much spicy", "jangan pedas", "kurang pedas", "pedas tapi tidak terlalu", "pedas tapi jangan terlalu", "pedas tapi tidak terlalu pedas"],
 
+
+    spicy: ["tidak pedas", "ga pedas", "nggak pedas", "no spicy", "not spicy", "less spicy", "not too spicy", "not to spicy", "not too much spicy", "jangan pedas", "kurang pedas", "pedas tapi tidak terlalu", "pedas tapi jangan terlalu", "pedas tapi tidak terlalu pedas"],
+
     spicy: ["tidak pedas", "ga pedas", "nggak pedas", "no spicy", "not spicy", "less spicy", "not too spicy", "jangan pedas", "pedas tapi tidak terlalu", "pedas tapi jangan terlalu"],
+
 
     seafood: ["no seafood", "tanpa seafood", "jangan seafood"],
     beef: ["no beef", "tanpa beef", "jangan sapi"],
@@ -221,6 +225,11 @@ const CHATBOT_KEYWORDS = {
 
 
 const CHATBOT_GENERAL_REQUEST = ["anything", "any food", "recommend", "recommendation", "rekomendasi", "terserah", "bebas", "apa aja", "apa saja"];
+
+
+
+const CHATBOT_GENERAL_REQUEST = ["anything", "any food", "recommend", "recommendation", "rekomendasi", "terserah", "bebas", "apa aja", "apa saja"];
+
 
 
 
@@ -276,6 +285,11 @@ function detectChatPreferences(userText) {
 
 
   prefs.isGeneralRequest = containsKeyword(text, CHATBOT_GENERAL_REQUEST);
+
+
+
+  prefs.isGeneralRequest = containsKeyword(text, CHATBOT_GENERAL_REQUEST);
+
 
 
 
@@ -335,7 +349,6 @@ function findChatbotRecommendations(userText) {
     .slice(0, 10)
     .map(function(row) { return row.item; });
 
-
   // Jika request sangat umum / skor tipis, tetap kasih opsi menu agar chatbot selalu responsif.
   if (results.length === 0 && ranked.length) {
     results = ranked
@@ -372,14 +385,12 @@ function buildChatbotSummary(prefs, count) {
   return "Siap! Aku temukan " + count + " menu yang cocok" + detail + ".";
 }
 
-
 function getDefaultRecommendations(limit) {
   return MENU.slice().sort(function(a, b) {
     if ((a.taste === "spicy") !== (b.taste === "spicy")) return a.taste === "spicy" ? -1 : 1;
     return a.price - b.price;
   }).slice(0, limit || 8);
 }
-
 
 
 function smartChatSearch(userText) {
@@ -396,7 +407,6 @@ function smartChatSearch(userText) {
   if (items.length > 0) {
     syncUiWithChatbotResult(recommendation.prefs, text);
 
-
     var summary = buildChatbotSummary(recommendation.prefs, items.length);
     if (recommendation.prefs.isGeneralRequest) {
       summary = "Siap! Ini rekomendasi menu favorit untuk kamu. Kamu bisa lanjut detailkan lagi seperti: spicy, egg, healthy, no seafood, dll.";
@@ -404,7 +414,9 @@ function smartChatSearch(userText) {
 
     appendMsg(summary, "bot", items);
 
+
     appendMsg(buildChatbotSummary(recommendation.prefs, items.length), "bot", items);
+
 
     return;
   }
@@ -424,7 +436,6 @@ function smartChatSearch(userText) {
     return;
   }
 
-
   var defaults = getDefaultRecommendations(8);
   if (defaults.length) {
     activeCategory = "all";
@@ -435,8 +446,6 @@ function smartChatSearch(userText) {
     appendMsg("Aku belum ketemu yang 100% pas, tapi ini rekomendasi yang paling mendekati. Kamu bisa spesifik lagi ya 😊", "bot", defaults);
     return;
   }
-
-
 
   appendMsg("Maaf, aku belum menemukan menu yang cocok. Coba jelaskan lebih detail, contoh: 'i want something spicy but not too spicy', 'egg food', atau 'healthy food under 50rb'. 😊", "bot");
 }
@@ -567,7 +576,6 @@ function filterMenuForChatbot(category) {
   updateChatbotSelectedItems();
 }
 
-
 function addFromChatbot(id, qty) {
   var item = MENU.find(function(m) { return m.id === id; });
   if (!item) return;
@@ -585,6 +593,8 @@ function addFromChatbot(id, qty) {
 
   for (var k = 0; k < inputQty; k++) addToCart(id);
 
+
+
 function addFromChatbot(id) {
   var item = MENU.find(function(m) { return m.id === id; });
   if (!item) return;
@@ -594,6 +604,7 @@ function addFromChatbot(id) {
   else chatbotSelectedItems.push(Object.assign({}, item, {qty: 1}));
 
   addToCart(id);
+
 
   updateChatbotSelectedItems();
   showToast("✅ " + item.name + " added!", "success");
@@ -1001,6 +1012,12 @@ function checkout(){
   updateCart();
   renderOrders();
 
+
+  var cartModal = document.getElementById("cart-modal");
+  if (cartModal && !cartModal.classList.contains("hidden")) cartModal.classList.add("hidden");
+
+
+
   var discountMsg = discount > 0 ? "\n🎉 Discount " + Math.round(discount * 100) + "% applied!" : "";
   alert("✅ Order successful!" + discountMsg + "\n💰 Total: Rp " + finalTotal.toLocaleString());
 }
@@ -1109,7 +1126,11 @@ function appendMsg(text, sender, items) {
 
             '<button onclick="addFromChatbot(' + item.id + ', parseInt(document.getElementById(\'qty-' + item.id + '\').value || 1, 10))" class="bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold">Add</button>' +
 
+
+            '<button onclick="addFromChatbot(' + item.id + ', parseInt(document.getElementById(\'qty-' + item.id + '\').value || 1, 10))" class="bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold">Add</button>' +
+
             '<button onclick="addFromChatbot(' + item.id + ')" class="bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold">Add</button>' +
+
 
           '</div>' +
         '</div>';

@@ -62,20 +62,20 @@ const MENU = [
 { id:40, name:"Chicken Porridge", price:15000, img:"foto/chicken-porridge.png", cat:["porridge"], taste:"sweet" },
 
 /* ================= DESSERT ================= */
-{ id:41, name:"Chocolate Glaze Donut", price:8000, img:"assets/images/dessert/chocolate-glaze-donut.png", cat:["sweet"], taste:"sweet" },
-{ id:42, name:"Frosted Vanilla Creme Donut", price:8000, img:"assets/images/dessert/frosted-vanilla-creme-donut.png", cat:["sweet"], taste:"sweet" },
-{ id:43, name:"Red Velvet Cream Cheese Donut", price:9000, img:"assets/images/dessert/red-velvet-cream-cheese-donut.png", cat:["sweet"], taste:"sweet" },
-{ id:44, name:"Tiramisu Donut", price:9000, img:"assets/images/dessert/tiramisu-donut.png", cat:["sweet"], taste:"sweet" },
-{ id:45, name:"Strawberry Donut", price:8000, img:"assets/images/dessert/strawberry-donut.png", cat:["sweet"], taste:"sweet" },
-{ id:46, name:"Brownies Fudge", price:25000, img:"assets/images/dessert/brownies-fudge.png", cat:["sweet"], taste:"sweet" },
-{ id:47, name:"Cheesecake", price:32000, img:"assets/images/dessert/cheesecake.png", cat:["sweet"], taste:"sweet" },
-{ id:48, name:"Matcha Cheese Cake", price:30000, img:"assets/images/dessert/matcha-cheese-cake.png", cat:["sweet"], taste:"sweet" },
-{ id:49, name:"Pandan Cake", price:28000, img:"assets/images/dessert/pandan-cake.png", cat:["sweet"], taste:"sweet" },
-{ id:50, name:"Macaroons Box", price:30000, img:"assets/images/dessert/macaroons-box.png", cat:["sweet"], taste:"sweet" },
-{ id:51, name:"Tiramisu", price:35000, img:"assets/images/dessert/tiramisu.png", cat:["sweet"], taste:"sweet" },
-{ id:52, name:"Strawberry Mochi", price:35000, img:"assets/images/dessert/strawberry-mochi.png", cat:["sweet"], taste:"sweet" },
-{ id:53, name:"DUBAI CHOCOLATE MOCHI PISTACHIO", price:35000, img:"assets/images/dessert/dubai-chocolate-mochi-pistachio.png", cat:["sweet"], taste:"sweet" },
-{ id:54, name:"Cheesecake Brownies", price:25000, img:"assets/images/dessert/cheesecake-brownies.png", cat:["sweet"], taste:"sweet" },
+{ id:41, name:"Chocolate Glaze Donut", price:8000, img:"foto/chocolate-glaze-donut.png", cat:["sweet"], taste:"sweet" },
+{ id:42, name:"Frosted Vanilla Creme Donut", price:8000, img:"foto/frosted-vanilla-creme-donut.png", cat:["sweet"], taste:"sweet" },
+{ id:43, name:"Red Velvet Cream Cheese Donut", price:9000, img:"foto/red-velvet-cream-cheese-donut.png", cat:["sweet"], taste:"sweet" },
+{ id:44, name:"Tiramisu Donut", price:9000, img:"foto/tiramisu-donut.png", cat:["sweet"], taste:"sweet" },
+{ id:45, name:"Strawberry Donut", price:8000, img:"foto/strawberry-donut.png", cat:["sweet"], taste:"sweet" },
+{ id:46, name:"Brownies Fudge", price:25000, img:"foto/brownies-fudge.png", cat:["sweet"], taste:"sweet" },
+{ id:47, name:"Cheesecake", price:32000, img:"foto/cheesecake.png", cat:["sweet"], taste:"sweet" },
+{ id:48, name:"Matcha Cheese Cake", price:30000, img:"foto/matcha-cheese-cake.png", cat:["sweet"], taste:"sweet" },
+{ id:49, name:"Pandan Cake", price:28000, img:"foto/pandan-cake.png", cat:["sweet"], taste:"sweet" },
+{ id:50, name:"Macaroons Box", price:30000, img:"foto/macaroons-box.png", cat:["sweet"], taste:"sweet" },
+{ id:51, name:"Tiramisu", price:35000, img:"foto/tiramisu.png", cat:["sweet"], taste:"sweet" },
+{ id:52, name:"Strawberry Mochi", price:35000, img:"foto/strawberry-mochi.png", cat:["sweet"], taste:"sweet" },
+{ id:53, name:"DUBAI CHOCOLATE MOCHI PISTACHIO", price:35000, img:"foto/dubai-chocolate-mochi-pistachio.png", cat:["sweet"], taste:"sweet" },
+{ id:54, name:"Cheesecake Brownies", price:25000, img:"foto/cheesecake-brownies.png", cat:["sweet"], taste:"sweet" },
 
 /* ================= DRINK ================= */
 { id:55, name:"Thai Tea", price:18000, img:"foto/thai-tea.png", cat:["drink"], taste:"sweet" },
@@ -1002,6 +1002,7 @@ function appendMsg(text, sender, items) {
   container.appendChild(wrapper);
   container.scrollTop = container.scrollHeight;
 }
+
 
 
 

@@ -247,3 +247,19 @@ button:active {
 .cart-btn {
     background: linear-gradient(135deg, #D84315 0%, #BF360C 100%);
 }
+
+#cart-modal {
+    overflow-y: auto;
+}
+
+#cart-items {
+    overscroll-behavior: contain;
+}
+
+#cart-items::-webkit-scrollbar {
+    width: 6px;
+}
+#cart-items::-webkit-scrollbar-thumb {
+    background: #ffb74d;
+    border-radius: 999px;
+}

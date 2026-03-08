@@ -2,7 +2,7 @@
 const MENU = [
 
 /* ================= SOUP ================= */
-{ id:1, name:"Seblak Level 1", price:15000, img:"foto/seblak-level-1", cat:["soup","spicy"], taste:"spicy" },
+{ id:1, name:"Seblak Level 1", price:15000, img:"foto/seblak-level-1.png", cat:["soup","spicy"], taste:"spicy" },
 { id:2, name:"Seblak Level 3", price:18000, img:"foto/seblak-level-3.png", cat:["soup","spicy"], taste:"spicy" },
 { id:3, name:"Seblak Level 5", price:20000, img:"foto/seblak-level-5.png", cat:["soup","spicy"], taste:"spicy" },
 { id:4, name:"Bakso Urat", price:20000, img:"foto/bakso-urat.png", cat:["soup"], taste:"medium" },
@@ -1002,6 +1002,7 @@ function appendMsg(text, sender, items) {
   container.appendChild(wrapper);
   container.scrollTop = container.scrollHeight;
 }
+
 
 
 

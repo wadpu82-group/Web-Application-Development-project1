@@ -174,35 +174,53 @@ if(localStorage.getItem("stock")){
 
 /* ================= SMART CHAT INTENT ENGINE ================= */
 
-// 1) Kamus sinonim -> intent/tag/category
-const INTENT_MAP = {
-  // ===== Category intents =====
-  noodles: ["mie", "mi", "noodle", "ramen", "kwetiau", "bihun", "soun", "udon", "spaghetti", "mie aceh", "mie ayam", "indomie"],
-  soup: ["kuah", "sup", "sop", "soto", "bakso", "ramen kuah", "tom yum", "seblak", "rawon"],
-  "fried rice": ["nasi", "rice", "nasgor", "nasi goreng", "goreng nasi"],
-  drink: ["minum", "minuman", "drink", "es", "ice", "teh", "tea", "kopi", "coffee", "jus", "juice", "soda", "boba", "thai tea", "milkshake", "smoothie"],
-  sweet: ["dessert", "desert", "manis", "kue", "cake", "donut", "pudding", "es krim", "ice cream", "coklat", "chocolate", "mochi", "brownies", "macaroon", "tiramisu", "cheesecake", "pancake", "waffle"],
-  snack: ["cemilan", "camilan", "snack", "gorengan", "kentang", "nugget", "dimsum", "onion rings", "mozzarella", "tempe", "tofu", "bread", "hotdog", "fries"],
-  salad: ["salad", "sayur", "greens", "lettuce"],
-  satay: ["satay", "sate"],
-  steak: ["steak", "wagyu", "grill"],
-  burger: ["burger", "hamburger"],
-  pizza: ["pizza"],
-  rice: ["rice", "nasi", "geprek", "porridge", "curry", "rendang", "ayam"],
-  healthy: ["healthy", "sehat", "diet", "low cal", "low calorie", "veggie", "vegetarian", "fitness", "protein"],
-  premium: ["premium", "luxury", "expensive"],
-
-  // ===== Taste / attribute intents =====
-  spicy: ["spicy", "pedas", "cabe", "cabai", "hot", "extra hot", "level", "balado", "mentai"],
-  mild: ["tidak pedas", "ga pedas", "nggak pedas", "less spicy", "mild", "sedikit pedas"],
-  seafood: ["seafood", "udang", "shrimp", "kepiting", "crab", "cumi", "squid", "ikan", "fish", "salmon", "tuna", "durian"],
-  chicken: ["ayam", "chicken"],
-  beef: ["sapi", "beef", "wagyu", "steak", "mutton"],
-  
-  // ===== Price intents =====
-  under50: ["under 50", "below 50", "<50", "<=50", "50rb", "50 rb", "50 ribu", "murah", "cheap", "budget", "dibawah 50"],
-  anyprice: ["bebas harga", "any price", "no limit", "tanpa batas", "semua harga", "mahal juga bisa", "berapapun"],
+// Search bar = pencarian literal menu/kategori
+// Chatbot = rekomendasi berbasis keinginan customer (spicy, egg, not too spicy, dll)
+const CHATBOT_KEYWORDS = {
+  category: {
+    noodles: ["mie", "mi", "noodle", "ramen", "kwetiau", "bihun", "soun", "udon", "spaghetti", "mie aceh", "mie ayam", "indomie"],
+    soup: ["kuah", "sup", "sop", "soto", "bakso", "tom yum", "seblak", "rawon"],
+    "fried rice": ["nasgor", "nasi goreng", "fried rice"],
+    drink: ["minum", "minuman", "drink", "teh", "tea", "kopi", "coffee", "jus", "juice", "boba", "thai tea", "milkshake", "smoothie"],
+    sweet: ["dessert", "desert", "manis", "kue", "cake", "donut", "pudding", "es krim", "ice cream", "coklat", "chocolate", "mochi", "brownies", "macaroon", "tiramisu", "cheesecake", "pancake", "waffle"],
+    snack: ["cemilan", "camilan", "snack", "gorengan", "kentang", "nugget", "dimsum", "onion rings", "mozzarella", "tempe", "tofu", "bread", "hotdog", "fries"],
+    salad: ["salad", "sayur", "greens", "lettuce"],
+    satay: ["satay", "sate"],
+    steak: ["steak", "wagyu", "grill"],
+    burger: ["burger", "hamburger"],
+    pizza: ["pizza"],
+    rice: ["rice", "nasi", "geprek", "porridge", "curry", "rendang"],
+    healthy: ["healthy", "sehat", "diet", "low cal", "low calorie", "veggie", "vegetarian", "fitness", "protein"],
+    seafood: ["seafood", "udang", "shrimp", "kepiting", "crab", "cumi", "squid", "ikan", "fish", "salmon", "tuna"]
+  },
+  includeTags: {
+    spicy: ["spicy", "pedas", "cabe", "cabai", "hot", "balado", "mentai", "level"],
+    egg: ["egg", "telur", "omelet", "omelette"],
+    chicken: ["ayam", "chicken"],
+    beef: ["sapi", "beef", "wagyu", "mutton"],
+    seafood: ["seafood", "udang", "shrimp", "salmon", "tuna", "ikan"],
+    sweet: ["sweet", "manis"],
+    healthy: ["healthy", "sehat", "diet", "vegetarian", "veggie", "protein"]
+  },
+  excludeTags: {
+    spicy: ["tidak pedas", "ga pedas", "nggak pedas", "no spicy", "not spicy", "less spicy", "not too spicy", "not to spicy", "not too much spicy", "jangan pedas", "kurang pedas", "pedas tapi tidak terlalu", "pedas tapi jangan terlalu", "pedas tapi tidak terlalu pedas"],
+    seafood: ["no seafood", "tanpa seafood", "jangan seafood"],
+    beef: ["no beef", "tanpa beef", "jangan sapi"],
+    chicken: ["no chicken", "tanpa ayam", "jangan ayam"]
+  },
+  price: {
+    under50: ["under 50", "below 50", "<50", "<=50", "50rb", "50 rb", "50 ribu", "murah", "cheap", "budget", "dibawah 50"],
+    anyprice: ["bebas harga", "any price", "no limit", "tanpa batas", "semua harga", "mahal juga bisa", "berapapun"]
+  }
 };
+
+
+const CHATBOT_GENERAL_REQUEST = ["anything", "any food", "recommend", "recommendation", "rekomendasi", "terserah", "bebas", "apa aja", "apa saja"];
+
+const CHATBOT_STOP_WORDS = new Set([
+  "i","want","something","food","please","plz","give","me","show","menu","a","an","the","to","order",
+  "saya","mau","ingin","tolong","dong","yang","dan","atau","carikan","cari"
+]);
 
 function normalizeText(s) {
   return (s || "")
@@ -212,144 +230,191 @@ function normalizeText(s) {
     .trim();
 }
 
-// 2) Extract intents dari kalimat user
-function extractIntents(userText) {
-  const t = normalizeText(userText);
-  const intents = new Set();
-
-  for (const [intent, keywords] of Object.entries(INTENT_MAP)) {
-    for (const k of keywords) {
-      if (t.includes(k)) {
-        intents.add(intent);
-        break;
-      }
-    }
-  }
-
-  return Array.from(intents);
-}
-
-// 3) Apply intents ke state filter
-function applyIntents(intents, rawText) {
-  // ===== Price =====
-  if (intents.includes("anyprice")) activePriceFilter = "all";
-  if (intents.includes("under50")) activePriceFilter = "under50";
-
-  // ===== Category priority (IMPORTANT: spicy/seafood/salad/healthy are real categories too) =====
-  const categoryOrder = [
-    "spicy", "seafood", "salad", "healthy", // attribute categories
-    "noodles", "soup", "fried rice", "drink", "sweet", "snack",
-    "satay", "steak", "burger", "pizza", "rice"
-  ];
-
-  const primary = categoryOrder.find(c => intents.includes(c));
-
-  if (primary) activeCategory = primary;
-  else activeCategory = "all";
-
-  // ===== Search keyword =====
-  // Remove common useless words so long sentences still work
-  const stop = new Set(["i","want","something","food","please","plz","give","me","show","menu","a","an","the","to","order"]);
-  const words = normalizeText(rawText).split(" ").filter(w => w && !stop.has(w));
-
-  // extras = intents besides category & price
-  const extraTags = intents.filter(x => !categoryOrder.includes(x) && !["under50","anyprice"].includes(x));
-
-  searchQuery = [...new Set([...words, ...extraTags])].join(" ").trim();
-
-  // Update UI
-  renderCategories();
-  filterMenu();
-
-  // Bot feedback
-  const categoryNames = {
-    "spicy": "🌶️ Spicy",
-    "seafood": "🦐 Seafood",
-    "salad": "🥗 Salad",
-    "healthy": "🥗 Healthy",
-    "noodles": "🍜 Noodles",
-    "soup": "🍲 Soup",
-    "fried rice": "🍛 Fried Rice",
-    "drink": "🧋 Drinks",
-    "sweet": "🍰 Dessert",
-    "snack": "🍟 Snack",
-    "satay": "🍢 Satay",
-    "steak": "🥩 Steak",
-    "burger": "🍔 Burger",
-    "pizza": "🍕 Pizza",
-    "rice": "🍚 Rice"
-  };
-
-  const priceText = activePriceFilter === "under50" ? " (under 50rb)" : "";
-  const catText = primary ? (categoryNames[primary] || primary) : "🍽️ All Menu";
-
-  appendMsg(`Okay! Showing ${catText}${priceText}. 😊`, "bot");
-}
-
-// 4) Fallback fuzzy search kalau tidak ada intent yang cocok
-function fuzzySearchFallback(userText) {
-  const t = normalizeText(userText);
-  const words = t.split(" ").filter(Boolean);
-
-  if (words.length === 0) return false;
-
-  const scored = MENU.map(item => {
-    const hay = normalizeText(`${item.name} ${(item.cat || []).join(" ")} ${item.taste || ""}`);
-    let score = 0;
-
-    // skor per kata yang match
-    for (const w of words) {
-      if (hay.includes(w)) score += 2;
-      // bonus untuk exact match nama
-      if (item.name.toLowerCase().includes(w)) score += 3;
-    }
-
-    // bonus kalau userText panjang dan ada banyak match
-    if (score > 0 && t.length > 8) score += 1;
-
-    return { item, score };
-  }).filter(x => x.score > 0)
-    .sort((a,b) => b.score - a.score)
-    .slice(0, 12)
-    .map(x => x.item);
-
-  if (scored.length > 0) {
-    // Reset filters and show fuzzy results
-    activeCategory = "all";
-    activePriceFilter = "all";
-    searchQuery = userText.toLowerCase();
-    renderCategories();
-    filterMenu();
-    
-    appendMsg(`Found ${scored.length} menus matching "${userText}":`, "bot", scored);
-    return true;
+function containsKeyword(text, keywords) {
+  for (var i = 0; i < keywords.length; i++) {
+    if (text.includes(keywords[i])) return true;
   }
   return false;
 }
 
-// 5) Main entry: panggil ini saat user submit chat
+function detectChatPreferences(userText) {
+  var text = normalizeText(userText);
+  var prefs = {
+    text: text,
+    categories: [],
+    include: [],
+    exclude: [],
+    price: "all",
+    searchWords: []
+  };
+
+  Object.keys(CHATBOT_KEYWORDS.category).forEach(function(cat) {
+    if (containsKeyword(text, CHATBOT_KEYWORDS.category[cat])) prefs.categories.push(cat);
+  });
+
+  Object.keys(CHATBOT_KEYWORDS.includeTags).forEach(function(tag) {
+    if (containsKeyword(text, CHATBOT_KEYWORDS.includeTags[tag])) prefs.include.push(tag);
+  });
+
+  Object.keys(CHATBOT_KEYWORDS.excludeTags).forEach(function(tag) {
+    if (containsKeyword(text, CHATBOT_KEYWORDS.excludeTags[tag])) prefs.exclude.push(tag);
+  });
+
+  if (containsKeyword(text, CHATBOT_KEYWORDS.price.under50)) prefs.price = "under50";
+  if (containsKeyword(text, CHATBOT_KEYWORDS.price.anyprice)) prefs.price = "all";
+
+  prefs.searchWords = text.split(" ").filter(function(w) {
+    return w && !CHATBOT_STOP_WORDS.has(w);
+  });
+
+  prefs.isGeneralRequest = containsKeyword(text, CHATBOT_GENERAL_REQUEST);
+
+  return prefs;
+}
+
+function scoreMenuByPreference(item, prefs) {
+  var hay = normalizeText((item.name || "") + " " + (item.taste || "") + " " + ((item.cat || []).join(" ")));
+  var score = 0;
+
+  for (var i = 0; i < prefs.categories.length; i++) {
+    if ((item.cat || []).includes(prefs.categories[i])) score += 6;
+  }
+
+  for (var j = 0; j < prefs.include.length; j++) {
+    var tag = prefs.include[j];
+    var hit = false;
+    if (tag === "spicy" && (item.taste === "spicy" || (item.cat || []).includes("spicy") || hay.includes("spicy"))) hit = true;
+    if (tag === "egg" && (hay.includes("egg") || hay.includes("telur") || hay.includes("omelet"))) hit = true;
+    if (tag === "chicken" && hay.includes("chicken")) hit = true;
+    if (tag === "beef" && (hay.includes("beef") || hay.includes("wagyu") || hay.includes("mutton"))) hit = true;
+    if (tag === "seafood" && ((item.cat || []).includes("seafood") || hay.includes("seafood") || hay.includes("salmon") || hay.includes("tuna"))) hit = true;
+    if (tag === "sweet" && item.taste === "sweet") hit = true;
+    if (tag === "healthy" && ((item.cat || []).includes("healthy") || hay.includes("salad") || hay.includes("bowl"))) hit = true;
+
+    if (hit) score += 5;
+  }
+
+  for (var k = 0; k < prefs.exclude.length; k++) {
+    var ex = prefs.exclude[k];
+    if (ex === "spicy" && (item.taste === "spicy" || (item.cat || []).includes("spicy"))) score -= 8;
+    if (ex === "seafood" && ((item.cat || []).includes("seafood") || hay.includes("seafood") || hay.includes("salmon") || hay.includes("tuna"))) score -= 8;
+    if (ex === "beef" && (hay.includes("beef") || hay.includes("wagyu") || hay.includes("mutton"))) score -= 8;
+    if (ex === "chicken" && hay.includes("chicken")) score -= 8;
+  }
+
+  for (var n = 0; n < prefs.searchWords.length; n++) {
+    if (hay.includes(prefs.searchWords[n])) score += 2;
+  }
+
+  if (prefs.price === "under50" && item.price < 50000) score += 3;
+  if (prefs.price === "under50" && item.price >= 50000) score -= 3;
+
+  return score;
+}
+
+function findChatbotRecommendations(userText) {
+  var prefs = detectChatPreferences(userText);
+
+  var ranked = MENU.map(function(item) {
+    return { item: item, score: scoreMenuByPreference(item, prefs) };
+  }).sort(function(a, b) { return b.score - a.score; });
+
+  var bestScore = ranked.length ? ranked[0].score : 0;
+  var results = ranked
+    .filter(function(row) { return row.score > 0 && row.score >= bestScore - 6; })
+    .slice(0, 10)
+    .map(function(row) { return row.item; });
+
+  // Jika request sangat umum / skor tipis, tetap kasih opsi menu agar chatbot selalu responsif.
+  if (results.length === 0 && ranked.length) {
+    results = ranked
+      .filter(function(row) { return row.score >= -1; })
+      .slice(0, 8)
+      .map(function(row) { return row.item; });
+  }
+
+  return { prefs: prefs, results: results, bestScore: bestScore };
+}
+
+function syncUiWithChatbotResult(prefs, text) {
+  activePriceFilter = prefs.price;
+
+  if (prefs.categories.length > 0) activeCategory = prefs.categories[0];
+  else activeCategory = "all";
+
+  searchQuery = (prefs.searchWords || []).join(" ").trim() || text;
+  renderCategories();
+  filterMenu();
+}
+
+function buildChatbotSummary(prefs, count) {
+  var parts = [];
+  if (prefs.categories.length) parts.push("kategori: " + prefs.categories.join(", "));
+  if (prefs.include.length) parts.push("preferensi: " + prefs.include.join(", "));
+  if (prefs.exclude.length) parts.push("tanpa: " + prefs.exclude.join(", "));
+  if (prefs.price === "under50") parts.push("harga: < 50rb");
+
+  var detail = parts.length ? " (" + parts.join(" | ") + ")" : "";
+  return "Siap! Aku temukan " + count + " menu yang cocok" + detail + ".";
+}
+
+function getDefaultRecommendations(limit) {
+  return MENU.slice().sort(function(a, b) {
+    if ((a.taste === "spicy") !== (b.taste === "spicy")) return a.taste === "spicy" ? -1 : 1;
+    return a.price - b.price;
+  }).slice(0, limit || 8);
+}
+
 function smartChatSearch(userText) {
-  const text = normalizeText(userText);
+  var text = normalizeText(userText);
   if (!text) return;
 
-  // set input search bar (biar sinkron)
-  const searchInput = document.getElementById("searchInput");
+  // Sync ke search bar agar user lihat kata yang dipakai chatbot
+  var searchInput = document.getElementById("searchInput");
   if (searchInput) searchInput.value = userText;
 
-  const intents = extractIntents(text);
+  var recommendation = findChatbotRecommendations(userText);
+  var items = recommendation.results;
 
-  if (intents.length > 0) {
-    applyIntents(intents, userText);
+  if (items.length > 0) {
+    syncUiWithChatbotResult(recommendation.prefs, text);
+
+    var summary = buildChatbotSummary(recommendation.prefs, items.length);
+    if (recommendation.prefs.isGeneralRequest) {
+      summary = "Siap! Ini rekomendasi menu favorit untuk kamu. Kamu bisa lanjut detailkan lagi seperti: spicy, egg, healthy, no seafood, dll.";
+    }
+
+    appendMsg(summary, "bot", items);
     return;
   }
 
-  // fallback fuzzy
-  const ok = fuzzySearchFallback(userText);
+  // fallback literal match nama menu
+  var fallback = MENU.filter(function(item) {
+    return normalizeText((item.name || "") + " " + ((item.cat || []).join(" "))).includes(text);
+  }).slice(0, 8);
 
-  // feedback kalau tidak ketemu
-  if (!ok) {
-    appendMsg("Sorry, I haven't found a matching menu. Try: spicy / drink / dessert / noodles / seafood / salad / under 50k / healthy 😊", "bot");
+  if (fallback.length > 0) {
+    activeCategory = "all";
+    activePriceFilter = "all";
+    searchQuery = text;
+    renderCategories();
+    filterMenu();
+    appendMsg('Aku belum yakin preferensinya, tapi ini hasil yang paling mendekati untuk "' + userText + '".', "bot", fallback);
+    return;
   }
+
+  var defaults = getDefaultRecommendations(8);
+  if (defaults.length) {
+    activeCategory = "all";
+    activePriceFilter = "all";
+    searchQuery = "";
+    renderCategories();
+    filterMenu();
+    appendMsg("Aku belum ketemu yang 100% pas, tapi ini rekomendasi yang paling mendekati. Kamu bisa spesifik lagi ya 😊", "bot", defaults);
+    return;
+  }
+
+  appendMsg("Maaf, aku belum menemukan menu yang cocok. Coba jelaskan lebih detail, contoh: 'i want something spicy but not too spicy', 'egg food', atau 'healthy food under 50rb'. 😊", "bot");
 }
 
 /* ================= IMAGE HELPERS ================= */
@@ -478,15 +543,22 @@ function filterMenuForChatbot(category) {
   updateChatbotSelectedItems();
 }
 
-function addFromChatbot(id) {
+function addFromChatbot(id, qty) {
   var item = MENU.find(function(m) { return m.id === id; });
   if (!item) return;
 
-  var existing = chatbotSelectedItems.find(function(c) { return c.id === id; });
-  if (existing) existing.qty += 1;
-  else chatbotSelectedItems.push(Object.assign({}, item, {qty: 1}));
+  var inputQty = qty;
+  if (!inputQty) {
+    var qtyInput = document.getElementById("qty-" + id);
+    inputQty = qtyInput ? parseInt(qtyInput.value, 10) : 1;
+  }
+  inputQty = isNaN(inputQty) || inputQty < 1 ? 1 : inputQty;
 
-  addToCart(id);
+  var existing = chatbotSelectedItems.find(function(c) { return c.id === id; });
+  if (existing) existing.qty += inputQty;
+  else chatbotSelectedItems.push(Object.assign({}, item, {qty: inputQty}));
+
+  for (var k = 0; k < inputQty; k++) addToCart(id);
   updateChatbotSelectedItems();
   showToast("✅ " + item.name + " added!", "success");
 }
@@ -649,7 +721,15 @@ function filterMenu(){
 }
 
 function searchMenu(){
-  searchQuery = document.getElementById("searchInput").value.toLowerCase();
+  // Search Food = pencarian literal (nama menu/kategori), bukan logika chatbot
+  searchQuery = normalizeText(document.getElementById("searchInput").value);
+
+  if (searchQuery) {
+    activeCategory = "all";
+    activePriceFilter = "all";
+    renderCategories();
+  }
+
   filterMenu();
 }
 
@@ -990,7 +1070,7 @@ function appendMsg(text, sender, items) {
           '</div>' +
           '<div class="flex items-center gap-2">' +
             '<input type="number" id="qty-' + item.id + '" value="1" min="1" class="w-10 border rounded text-center text-xs p-1">' +
-            '<button onclick="addFromChatbot(' + item.id + ')" class="bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold">Add</button>' +
+            '<button onclick="addFromChatbot(' + item.id + ', parseInt(document.getElementById(\'qty-' + item.id + '\').value || 1, 10))" class="bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold">Add</button>' +
           '</div>' +
         '</div>';
     });
@@ -1002,7 +1082,6 @@ function appendMsg(text, sender, items) {
   container.appendChild(wrapper);
   container.scrollTop = container.scrollHeight;
 }
-
 
 
 

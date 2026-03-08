@@ -203,7 +203,15 @@ const CHATBOT_KEYWORDS = {
     healthy: ["healthy", "sehat", "diet", "vegetarian", "veggie", "protein"]
   },
   excludeTags: {
+
     spicy: ["tidak pedas", "ga pedas", "nggak pedas", "no spicy", "not spicy", "less spicy", "not too spicy", "not to spicy", "not too much spicy", "jangan pedas", "kurang pedas", "pedas tapi tidak terlalu", "pedas tapi jangan terlalu", "pedas tapi tidak terlalu pedas"],
+
+
+    spicy: ["tidak pedas", "ga pedas", "nggak pedas", "no spicy", "not spicy", "less spicy", "not too spicy", "not to spicy", "not too much spicy", "jangan pedas", "kurang pedas", "pedas tapi tidak terlalu", "pedas tapi jangan terlalu", "pedas tapi tidak terlalu pedas"],
+
+    spicy: ["tidak pedas", "ga pedas", "nggak pedas", "no spicy", "not spicy", "less spicy", "not too spicy", "jangan pedas", "pedas tapi tidak terlalu", "pedas tapi jangan terlalu"],
+
+
     seafood: ["no seafood", "tanpa seafood", "jangan seafood"],
     beef: ["no beef", "tanpa beef", "jangan sapi"],
     chicken: ["no chicken", "tanpa ayam", "jangan ayam"]
@@ -215,7 +223,15 @@ const CHATBOT_KEYWORDS = {
 };
 
 
+
 const CHATBOT_GENERAL_REQUEST = ["anything", "any food", "recommend", "recommendation", "rekomendasi", "terserah", "bebas", "apa aja", "apa saja"];
+
+
+
+const CHATBOT_GENERAL_REQUEST = ["anything", "any food", "recommend", "recommendation", "rekomendasi", "terserah", "bebas", "apa aja", "apa saja"];
+
+
+
 
 const CHATBOT_STOP_WORDS = new Set([
   "i","want","something","food","please","plz","give","me","show","menu","a","an","the","to","order",
@@ -267,7 +283,15 @@ function detectChatPreferences(userText) {
     return w && !CHATBOT_STOP_WORDS.has(w);
   });
 
+
   prefs.isGeneralRequest = containsKeyword(text, CHATBOT_GENERAL_REQUEST);
+
+
+
+  prefs.isGeneralRequest = containsKeyword(text, CHATBOT_GENERAL_REQUEST);
+
+
+
 
   return prefs;
 }
@@ -334,6 +358,9 @@ function findChatbotRecommendations(userText) {
   }
 
   return { prefs: prefs, results: results, bestScore: bestScore };
+
+  return { prefs: prefs, results: results };
+
 }
 
 function syncUiWithChatbotResult(prefs, text) {
@@ -365,6 +392,7 @@ function getDefaultRecommendations(limit) {
   }).slice(0, limit || 8);
 }
 
+
 function smartChatSearch(userText) {
   var text = normalizeText(userText);
   if (!text) return;
@@ -385,6 +413,11 @@ function smartChatSearch(userText) {
     }
 
     appendMsg(summary, "bot", items);
+
+
+    appendMsg(buildChatbotSummary(recommendation.prefs, items.length), "bot", items);
+
+
     return;
   }
 
@@ -559,6 +592,20 @@ function addFromChatbot(id, qty) {
   else chatbotSelectedItems.push(Object.assign({}, item, {qty: inputQty}));
 
   for (var k = 0; k < inputQty; k++) addToCart(id);
+
+
+
+function addFromChatbot(id) {
+  var item = MENU.find(function(m) { return m.id === id; });
+  if (!item) return;
+
+  var existing = chatbotSelectedItems.find(function(c) { return c.id === id; });
+  if (existing) existing.qty += 1;
+  else chatbotSelectedItems.push(Object.assign({}, item, {qty: 1}));
+
+  addToCart(id);
+
+
   updateChatbotSelectedItems();
   showToast("✅ " + item.name + " added!", "success");
 }
@@ -965,8 +1012,11 @@ function checkout(){
   updateCart();
   renderOrders();
 
+
   var cartModal = document.getElementById("cart-modal");
   if (cartModal && !cartModal.classList.contains("hidden")) cartModal.classList.add("hidden");
+
+
 
   var discountMsg = discount > 0 ? "\n🎉 Discount " + Math.round(discount * 100) + "% applied!" : "";
   alert("✅ Order successful!" + discountMsg + "\n💰 Total: Rp " + finalTotal.toLocaleString());
@@ -1073,7 +1123,15 @@ function appendMsg(text, sender, items) {
           '</div>' +
           '<div class="flex items-center gap-2">' +
             '<input type="number" id="qty-' + item.id + '" value="1" min="1" class="w-10 border rounded text-center text-xs p-1">' +
+
             '<button onclick="addFromChatbot(' + item.id + ', parseInt(document.getElementById(\'qty-' + item.id + '\').value || 1, 10))" class="bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold">Add</button>' +
+
+
+            '<button onclick="addFromChatbot(' + item.id + ', parseInt(document.getElementById(\'qty-' + item.id + '\').value || 1, 10))" class="bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold">Add</button>' +
+
+            '<button onclick="addFromChatbot(' + item.id + ')" class="bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold">Add</button>' +
+
+
           '</div>' +
         '</div>';
     });

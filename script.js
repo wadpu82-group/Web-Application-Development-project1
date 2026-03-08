@@ -145,6 +145,28 @@ let cart = [];
 let orders = [];
 let chats = [];
 
+
+function safeReadJson(key, fallback) {
+  var raw = localStorage.getItem(key);
+  if (!raw) return fallback;
+  try {
+    var parsed = JSON.parse(raw);
+    return parsed == null ? fallback : parsed;
+  } catch (err) {
+    console.warn('[Storage] invalid JSON for key:', key, err);
+    localStorage.removeItem(key);
+    return fallback;
+  }
+}
+
+orders = safeReadJson("orders", []);
+chats = safeReadJson("chats", []);
+
+MENU.forEach(function(item) { if(!item.stock) item.stock = Math.floor(Math.random() * 20) + 10; });
+
+var savedStock = safeReadJson("stock", {});
+MENU.forEach(function(i) { if(savedStock[i.id]) i.stock = savedStock[i.id]; });
+
 if(localStorage.getItem("orders")) orders = JSON.parse(localStorage.getItem("orders"));
 if(localStorage.getItem("chats")) chats = JSON.parse(localStorage.getItem("chats"));
 
@@ -154,6 +176,7 @@ if(localStorage.getItem("stock")){
   var savedStock = JSON.parse(localStorage.getItem("stock"));
   MENU.forEach(function(i) { if(savedStock[i.id]) i.stock = savedStock[i.id]; });
 }
+
 
 // Guard: warn when MENU ids are duplicated (can break edit/cart/find-by-id behavior)
 (function warnDuplicateMenuIds(){
@@ -209,7 +232,11 @@ const CHATBOT_KEYWORDS = {
 
     spicy: ["tidak pedas", "ga pedas", "nggak pedas", "no spicy", "not spicy", "less spicy", "not too spicy", "not to spicy", "not too much spicy", "jangan pedas", "kurang pedas", "pedas tapi tidak terlalu", "pedas tapi jangan terlalu", "pedas tapi tidak terlalu pedas"],
 
+
+    spicy: ["tidak pedas", "ga pedas", "nggak pedas", "no spicy", "not spicy", "less spicy", "not too spicy", "not to spicy", "not too much spicy", "jangan pedas", "kurang pedas", "pedas tapi tidak terlalu", "pedas tapi jangan terlalu", "pedas tapi tidak terlalu pedas"],
+
     spicy: ["tidak pedas", "ga pedas", "nggak pedas", "no spicy", "not spicy", "less spicy", "not too spicy", "jangan pedas", "pedas tapi tidak terlalu", "pedas tapi jangan terlalu"],
+
 
 
     seafood: ["no seafood", "tanpa seafood", "jangan seafood"],
@@ -229,6 +256,11 @@ const CHATBOT_GENERAL_REQUEST = ["anything", "any food", "recommend", "recommend
 
 
 const CHATBOT_GENERAL_REQUEST = ["anything", "any food", "recommend", "recommendation", "rekomendasi", "terserah", "bebas", "apa aja", "apa saja"];
+
+
+
+const CHATBOT_GENERAL_REQUEST = ["anything", "any food", "recommend", "recommendation", "rekomendasi", "terserah", "bebas", "apa aja", "apa saja"];
+
 
 
 
@@ -289,6 +321,11 @@ function detectChatPreferences(userText) {
 
 
   prefs.isGeneralRequest = containsKeyword(text, CHATBOT_GENERAL_REQUEST);
+
+
+
+  prefs.isGeneralRequest = containsKeyword(text, CHATBOT_GENERAL_REQUEST);
+
 
 
 
@@ -359,7 +396,10 @@ function findChatbotRecommendations(userText) {
 
   return { prefs: prefs, results: results, bestScore: bestScore };
 
+
+
   return { prefs: prefs, results: results };
+
 
 }
 
@@ -393,6 +433,9 @@ function getDefaultRecommendations(limit) {
 }
 
 
+
+
+
 function smartChatSearch(userText) {
   var text = normalizeText(userText);
   if (!text) return;
@@ -415,7 +458,10 @@ function smartChatSearch(userText) {
     appendMsg(summary, "bot", items);
 
 
+
+
     appendMsg(buildChatbotSummary(recommendation.prefs, items.length), "bot", items);
+
 
 
     return;
@@ -595,6 +641,8 @@ function addFromChatbot(id, qty) {
 
 
 
+
+
 function addFromChatbot(id) {
   var item = MENU.find(function(m) { return m.id === id; });
   if (!item) return;
@@ -604,6 +652,7 @@ function addFromChatbot(id) {
   else chatbotSelectedItems.push(Object.assign({}, item, {qty: 1}));
 
   addToCart(id);
+
 
 
   updateChatbotSelectedItems();
@@ -1018,6 +1067,12 @@ function checkout(){
 
 
 
+  var cartModal = document.getElementById("cart-modal");
+  if (cartModal && !cartModal.classList.contains("hidden")) cartModal.classList.add("hidden");
+
+
+
+
   var discountMsg = discount > 0 ? "\n🎉 Discount " + Math.round(discount * 100) + "% applied!" : "";
   alert("✅ Order successful!" + discountMsg + "\n💰 Total: Rp " + finalTotal.toLocaleString());
 }
@@ -1129,7 +1184,11 @@ function appendMsg(text, sender, items) {
 
             '<button onclick="addFromChatbot(' + item.id + ', parseInt(document.getElementById(\'qty-' + item.id + '\').value || 1, 10))" class="bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold">Add</button>' +
 
+
+            '<button onclick="addFromChatbot(' + item.id + ', parseInt(document.getElementById(\'qty-' + item.id + '\').value || 1, 10))" class="bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold">Add</button>' +
+
             '<button onclick="addFromChatbot(' + item.id + ')" class="bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg font-bold">Add</button>' +
+
 
 
           '</div>' +

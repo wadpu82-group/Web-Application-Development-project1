@@ -131,11 +131,11 @@ body { background: #ffffff; }
   </button>
 
   <!-- CART MODAL -->
-  <div id="cart-modal" class="hidden fixed inset-0 cart-modal-bg flex items-center justify-center p-4">
-    <div class="cart-content w-full max-w-md p-6 rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+  <div id="cart-modal" class="hidden fixed inset-0 cart-modal-bg flex items-center justify-center">
+    <div class="cart-content w-96 p-6 rounded-2xl shadow-2xl">
       <h2 class="font-bold mb-4 text-orange-900">Shopping Cart</h2>
-      <div id="cart-items" class="flex-1 overflow-y-auto pr-1 min-h-[120px]"></div>
-      <div class="mt-4 font-bold text-orange-900 shrink-0">
+      <div id="cart-items"></div>
+      <div class="mt-4 font-bold text-orange-900">
         Total: Rp <span id="cart-total">0</span>
       </div>
       <button onclick="checkout()"

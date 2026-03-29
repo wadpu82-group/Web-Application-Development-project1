@@ -1,0 +1,249 @@
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #ffffff;
+}
+
+/* Scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Toast Animations */
+@keyframes bounce-in {
+    0% { transform: translate(-50%, -20px); opacity: 0; }
+    50% { transform: translate(-50%, 5px); }
+    100% { transform: translate(-50%, 0); opacity: 1; }
+}
+
+@keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.animate-bounce-in {
+    animation: bounce-in 0.3s ease-out forwards;
+}
+
+.animate-fade-out {
+    animation: fade-out 0.3s ease-out forwards;
+}
+
+/* Category Button */
+.category-btn {
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+}
+.category-btn:hover {
+    transform: scale(1.05);
+}
+.category-btn:active {
+    transform: scale(0.98);
+}
+
+/* Card Hover Enhancement */
+.menu-card {
+    cursor: pointer;
+}
+.menu-card:active {
+    transform: scale(0.98);
+}
+
+/* Button Hover */
+button {
+    transition: all 0.2s ease;
+}
+button:active {
+    transform: scale(0.96);
+}
+
+/* Modal Backdrop */
+#cart-modal > div {
+    animation: modal-pop 0.3s ease-out;
+}
+
+@keyframes modal-pop {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Cart Button Pulse */
+.fixed button:first-child {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 4px 15px rgba(216, 67, 21, 0.3); }
+    50% { box-shadow: 0 4px 25px rgba(216, 67, 21, 0.5); }
+}
+
+/* Item Remove Animation */
+.remove-item {
+    animation: slide-out 0.3s ease-out forwards;
+}
+
+@keyframes slide-out {
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+/* Loading skeleton shimmer enhancement */
+.skeleton {
+    background: linear-gradient(90deg, #eeeeee 25%, #dddddd 50%, #eeeeee 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Price Tag */
+.price-tag {
+    background: linear-gradient(135deg, #D84315, #BF360C);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Discount Badge */
+.discount-badge {
+    background: linear-gradient(135deg, #81c784, #66bb6a);
+    animation: badge-pop 0.3s ease-out;
+}
+
+@keyframes badge-pop {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Cart Empty State */
+.cart-empty {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Search Input Focus */
+#searchInput:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(216, 67, 21, 0.2);
+    border-color: #D84315;
+}
+
+/* Menu Card Image Container */
+.menu-image-container {
+    overflow: hidden;
+}
+.menu-image-container img {
+    transition: transform 0.4s ease;
+}
+.menu-card:hover .menu-image-container img {
+    transform: scale(1.1);
+}
+
+/* Quantity Controls */
+.qty-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #ffe0b2;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.qty-btn:hover {
+    background: #ffcc80;
+    transform: scale(1.1);
+}
+.qty-btn:active {
+    transform: scale(0.95);
+}
+
+/* Chatbot Panel */
+#chatbot-panel {
+    box-shadow: -4px 0 20px rgba(0,0,0,0.2);
+}
+
+#chatbot-panel .bg-gradient-to-r {
+    background: linear-gradient(135deg, #5D4037, #4E342E);
+}
+
+#chatbot-messages {
+    scroll-behavior: smooth;
+}
+
+/* Chatbot Scrollbar */
+#chatbot-messages::-webkit-scrollbar {
+    width: 4px;
+}
+#chatbot-messages::-webkit-scrollbar-track {
+    background: #fff3e0;
+}
+#chatbot-messages::-webkit-scrollbar-thumb {
+    background: #ffb74d;
+    border-radius: 4px;
+}
+
+/* Chatbot Buttons */
+#chatbot-panel button {
+    font-family: inherit;
+}
+
+/* Chatbot Items List */
+#chatbot-items-list::-webkit-scrollbar {
+    width: 3px;
+}
+#chatbot-items-list::-webkit-scrollbar-thumb {
+    background: #ffcc80;
+    border-radius: 3px;
+}
+
+/* Responsive Chatbot */
+@media (max-width: 768px) {
+    #chatbot-panel {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+/* Premium Badge Style */
+.premium-badge {
+    background: linear-gradient(135deg, #8D6E63, #6D4C41);
+}
+
+/* Buyer View Background */
+.buyer-view {
+    background: linear-gradient(180deg, #5D4037 0%, #4E342E 30%, #D84315 70%, #BF360C 100%);
+}
+
+/* Seller View */
+.seller-view {
+    background: linear-gradient(180deg, #D84315 0%, #BF360C 100%);
+}
+
+/* Chatbot Panel */
+.chatbot-panel {
+    background: linear-gradient(180deg, #BF360C 0%, #D84315 100%);
+}
+
+/* Header */
+.header {
+    background: linear-gradient(135deg, #5D4037 0%, #4E342E 100%);
+}
+
+/* Cart Button */
+.cart-btn {
+    background: linear-gradient(135deg, #D84315 0%, #BF360C 100%);
+}

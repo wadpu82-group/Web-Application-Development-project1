@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KING Store Ultimate</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  crossorigin=""
+/>
+<link rel="stylesheet" href="style.css" />
+<style>
+/* Color Scheme - White Background, Mocca & Terracotta Theme */
+body { background: #ffffff; }
+
+/* Header - Mocca Tua (#105) */
+.header { background: linear-gradient(135deg, #5D4037 0%, #4E342E 100%); }
+
+/* Buyer View - Mocca Tua (#105) + Terakota (#042) */
+.buyer-view {
+  background: linear-gradient(180deg, #5D4037 0%, #4E342E 30%, #D84315 70%, #BF360C 100%);
+  min-height: 100vh;
+}
+
+/* Chatbot - Terakota (#042) */
+.chatbot-panel { background: linear-gradient(180deg, #BF360C 0%, #D84315 100%); }
+
+/* Seller View - Terakota (#042) */
+.seller-view { background: linear-gradient(180deg, #D84315 0%, #BF360C 100%); min-height: 100vh; }
+
+/* Cart Button */
+.cart-btn { background: linear-gradient(135deg, #D84315 0%, #BF360C 100%); }
+
+/* Premium Badge */
+.premium-badge { background: linear-gradient(135deg, #8D6E63 0%, #6D4C41 100%); }
+
+/* Category Button Active */
+.category-btn.active {
+  background: linear-gradient(135deg, #D84315 0%, #BF360C 100%);
+  color: white;
+}
+
+/* Menu Card */
+.menu-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  transition: .3s;
+  border: 1px solid #eee;
+}
+.menu-card:hover { transform: translateY(-6px); box-shadow: 0 10px 30px rgba(216, 67, 21, 0.2); }
+
+/* Cart Modal */
+.cart-modal-bg { background: rgba(93, 64, 55, 0.7); }
+.cart-content { background: #fff; border: 2px solid #D84315; }
+
+/* Toast */
+.toast-success { background: linear-gradient(135deg, #D84315 0%, #BF360C 100%); }
+.toast-error { background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%); }
+
+/* Menu Image */
+.menu-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  opacity: 1;
+  transition: .4s;
+}
+.menu-image.loaded { opacity: 1; }
+
+/* Skeleton Loading */
+.skeleton {
+  background: linear-gradient(90deg, #eeeeee 25%, #dddddd 50%, #eeeeee 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+
+/* Smooth Animations (optional) */
+@keyframes bounceIn { from { transform: translate(-50%, -10px) scale(0.98); opacity: 0; } to { transform: translate(-50%, 0) scale(1); opacity: 1; } }
+.animate-bounce-in { animation: bounceIn .25s ease-out; }
+@keyframes fadeOut { to { opacity: 0; transform: translate(-50%, -6px); } }
+.animate-fade-out { animation: fadeOut .3s ease-in; }
+
+/* Registration landing page */
+.registration-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #F9FAFB 0%, #FFF7ED 100%);
+}
+.registration-card {
+  max-width: 480px;
+  width: 100%;
+  background: rgba(255,255,255,0.94);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
+}
+.registration-card input,
+.registration-card textarea {
+  background: #fff;
+}
+.registration-card .error-message {
+  color: #dc2626;
+  font-size: 0.85rem;
+}
+.registration-card .password-toggle {
+  cursor: pointer;
+}
+.registration-card .field-border {
+  border-color: rgba(226, 232, 240, 0.9);
+}
+.registration-card .field-border:focus-within {
+  border-color: #fb923c;
+}
+.login-card {
+  max-width: 480px;
+}
+</style>
+</head>
+
+<body class="min-h-screen">
+
+<!-- REGISTRATION LANDING PAGE -->
+<div id="registration-page" class="registration-page flex items-center justify-center p-6">
+  <div class="registration-card rounded-[32px] p-6 sm:p-10">
+    <div class="mb-6 text-center">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-3xl bg-orange-100 text-orange-700 mb-4">
+        <span class="text-2xl">👑</span>
+      </div>
+      <h1 class="text-3xl font-bold text-slate-900 mb-2">Sign Up</h1>
+      <p class="text-slate-500">Create an account to access KING Store and start ordering your favorite menu.</p>
+    </div>
+
+    <form id="registration-form" class="space-y-5" novalidate>
+      <div>
+        <label for="regName" class="block text-sm font-medium text-slate-700 mb-2">Name</label>
+        <div class="rounded-3xl border field-border overflow-hidden">
+          <input id="regName" name="name" type="text" autocomplete="name" required
+            class="w-full p-4 text-sm text-slate-900 outline-none"
+            placeholder="Full Name" />
+        </div>
+        <p id="error-name" class="error-message hidden">Full name is required.</p>
+      </div>
+
+      <div>
+        <label for="regPhone" class="block text-sm font-medium text-slate-700 mb-2">Phone</label>
+        <div class="rounded-3xl border field-border overflow-hidden">
+          <input id="regPhone" name="phone" type="tel" inputmode="numeric" pattern="[0-9]*" autocomplete="tel" required
+            class="w-full p-4 text-sm text-slate-900 outline-none"
+            placeholder="Phone Number" />
+        </div>
+        <p id="error-phone" class="error-message hidden">Phone number is required and must be digits only.</p>
+      </div>
+
+      <div>
+        <label for="regAddress" class="block text-sm font-medium text-slate-700 mb-2">Address</label>
+        <div class="rounded-3xl border field-border overflow-hidden">
+          <textarea id="regAddress" name="address" rows="4" required
+            class="w-full p-4 text-sm text-slate-900 outline-none resize-none"
+            placeholder="Full Address"></textarea>
+        </div>
+        <p id="error-address" class="error-message hidden">Address is required.</p>
+      </div>
+
+      <div>
+        <label for="regEmail" class="block text-sm font-medium text-slate-700 mb-2">Email</label>
+        <div class="rounded-3xl border field-border overflow-hidden">
+          <input id="regEmail" name="email" type="email" autocomplete="email" required
+            class="w-full p-4 text-sm text-slate-900 outline-none"
+            placeholder="example@mail.com" />
+        </div>
+        <p id="error-email" class="error-message hidden">Please enter a valid email address.</p>
+      </div>
+
+      <div>
+        <label for="regPassword" class="block text-sm font-medium text-slate-700 mb-2">Password</label>
+        <div class="relative rounded-3xl border field-border overflow-hidden">
+          <input id="regPassword" name="password" type="password" autocomplete="new-password" required
+            class="w-full p-4 text-sm text-slate-900 outline-none pr-24"
+            placeholder="Create a password" />
+          <button type="button" id="toggle-password" class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-orange-600 font-semibold password-toggle">
+            Show
+          </button>
+        </div>
+        <p id="error-password" class="error-message hidden">Password must be at least 6 characters.</p>
+      </div>
+
+      <button id="registration-submit" type="submit"
+        class="w-full rounded-3xl bg-orange-600 text-white py-4 text-sm font-semibold shadow-lg shadow-orange-200 transition hover:bg-orange-700 disabled:opacity-70"
+      >Register Account</button>
+    </form>
+
+    <p class="mt-6 text-center text-sm text-slate-500">Already have an account? <button id="switch-to-login" type="button" class="font-semibold text-orange-600 hover:text-orange-700">Login here</button></p>
+  </div>
+</div>
+
+<!-- LOGIN PAGE -->
+<div id="login-page" class="registration-page hidden flex items-center justify-center p-6">
+  <div class="registration-card rounded-[32px] p-6 sm:p-10">
+    <div class="mb-6 text-center">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-3xl bg-orange-100 text-orange-700 mb-4">
+        <span class="text-2xl">🔐</span>
+      </div>
+      <h1 class="text-3xl font-bold text-slate-900 mb-2">Login</h1>
+      <p class="text-slate-500">Sign in with your registered account to continue to KING Store.</p>
+    </div>
+
+    <div class="rounded-2xl bg-orange-50 border border-orange-200 px-4 py-3 mb-5 text-xs text-orange-800">
+      <div class="font-semibold mb-1">Demo Account</div>
+      <div>📧 <span class="font-mono">budi@test.com</span> &nbsp;·&nbsp; 🔑 <span class="font-mono">123456</span></div>
+      <div>📧 <span class="font-mono">siti@test.com</span> &nbsp;·&nbsp; 🔑 <span class="font-mono">123456</span></div>
+    </div>
+
+    <form id="login-form" class="space-y-5" novalidate>
+      <div>
+        <label for="loginEmail" class="block text-sm font-medium text-slate-700 mb-2">Email</label>
+        <div class="rounded-3xl border field-border overflow-hidden">
+          <input id="loginEmail" name="email" type="email" autocomplete="email" required
+            class="w-full p-4 text-sm text-slate-900 outline-none"
+            placeholder="example@mail.com" />
+        </div>
+        <p id="error-login-email" class="error-message hidden">Email is required and must be valid.</p>
+      </div>
+
+      <div>
+        <label for="loginPassword" class="block text-sm font-medium text-slate-700 mb-2">Password</label>
+        <div class="relative rounded-3xl border field-border overflow-hidden">
+          <input id="loginPassword" name="password" type="password" autocomplete="current-password" required
+            class="w-full p-4 text-sm text-slate-900 outline-none pr-24"
+            placeholder="Enter password" />
+          <button type="button" id="toggle-login-password" class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-orange-600 font-semibold password-toggle">
+            Show
+          </button>
+        </div>
+        <p id="error-login-password" class="error-message hidden">Password is required.</p>
+      </div>
+
+      <button id="login-submit" type="submit"
+        class="w-full rounded-3xl bg-orange-600 text-white py-4 text-sm font-semibold shadow-lg shadow-orange-200 transition hover:bg-orange-700 disabled:opacity-70"
+      >Login</button>
+    </form>
+
+    <p class="mt-6 text-center text-sm text-slate-500">Don't have an account? <button id="switch-to-register" type="button" class="font-semibold text-orange-600 hover:text-orange-700">Register now</button></p>
+  </div>
+</div>
+
+<div id="main-app">
+
+<!-- HEADER -->
+<div class="header shadow-sm sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
+    <h1 class="text-xl font-bold text-white">👑 KING Store</h1>
+    <div class="flex gap-2">
+      <button onclick="switchView('buyer')" class="px-4 py-2 bg-orange-700 text-white rounded-xl text-sm hover:bg-orange-800 transition-colors">Buyer</button>
+      <button onclick="switchView('seller')" class="px-4 py-2 bg-white text-orange-800 rounded-xl text-sm hover:bg-orange-50 border border-orange-300 transition-colors">Seller</button>
+    </div>
+  </div>
+</div>
+
+<!-- BUYER VIEW -->
+<div id="buyer-view" class="buyer-view p-5">
+
+  <div id="buyer-seller-info" class="seller-info-card mb-5">
+    <div class="seller-card-banner">
+      <a
+        id="buyerWhatsappBtn"
+        class="whatsapp-btn whatsapp-btn-floating"
+        href="https://wa.me/6289518631090"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        💬 WhatsApp
+      </a>
+    </div>
+
+    <div class="seller-card-body">
+      <div class="seller-card-main">
+        <div class="seller-avatar">👑</div>
+        <div class="seller-meta">
+          <div class="seller-name-row">
+            <h2 class="seller-name" id="buyerSellerName">KING Store</h2>
+            <span class="seller-status"><span class="pulse-dot"></span> Open Now</span>
+          </div>
+          <div class="seller-rating">
+            <span class="stars">⭐⭐⭐⭐⭐</span>
+            <span class="rating-text">4.9</span>
+            <span class="rating-divider">·</span>
+            <span class="rating-orders">1.2k+ orders</span>
+          </div>
+          <p class="seller-tagline">Authentic flavors, delivered fresh & fast 🔥</p>
+        </div>
+      </div>
+
+      <div class="seller-info-chips">
+        <div class="seller-chip">
+          <div class="seller-chip-icon">🆔</div>
+          <div class="seller-chip-text">
+            <div class="seller-chip-label">Store ID</div>
+            <div class="seller-chip-value" id="buyerSellerId">KS-001</div>
+          </div>
+        </div>
+        <div class="seller-chip">
+          <div class="seller-chip-icon">📞</div>
+          <div class="seller-chip-text">
+            <div class="seller-chip-label">Contact</div>
+            <div class="seller-chip-value" id="buyerSellerContact">6289518631090</div>
+          </div>
+        </div>
+        <div class="seller-chip">
+          <div class="seller-chip-icon">⏰</div>
+          <div class="seller-chip-text">
+            <div class="seller-chip-label">Hours</div>
+            <div class="seller-chip-value">10:00 - 22:00</div>
+          </div>
+        </div>
+        <div class="seller-chip">
+          <div class="seller-chip-icon">📍</div>
+          <div class="seller-chip-text">
+            <div class="seller-chip-label">Location</div>
+            <div class="seller-chip-value">Jakarta</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORY FILTERS -->
+  <div id="category-container" class="flex gap-2 overflow-x-auto pb-4 mb-4 no-scrollbar">
+    <button onclick="filterByPrice('all')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-white text-orange-800 hover:bg-orange-100 border border-orange-300" data-price="all">💰 All Prices</button>
+    <button onclick="filterByPrice('under50')" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all bg-white text-orange-800 hover:bg-orange-100 border border-orange-300" data-price="under50">💵 Prices < 50rb</button>
+  </div>
+
+  <!-- SEARCH FOOD -->
+  <div class="mb-6">
+    <input id="searchInput" type="text" placeholder="Search food..."
+      class="w-full p-3 border-2 border-orange-300 rounded-xl focus:outline-none focus:border-orange-600 focus:ring-2 focus:ring-orange-200 bg-white"
+      oninput="searchMenu()" />
+  </div>
+
+  <!-- MENU GRID -->
+  <div id="menu-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+
+  <!-- CART BUTTON -->
+  <div class="fixed bottom-6 right-6 flex flex-col gap-3 items-end">
+    <button onclick="openMyOrders()"
+      class="bg-white text-orange-800 border border-orange-300 px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-shadow text-sm font-semibold">
+      📋 My Orders
+    </button>
+    <button onclick="toggleCart()"
+      class="cart-btn text-white px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-shadow">
+      🛒 <span id="cart-count">0</span>
+    </button>
+  </div>
+
+  <!-- MY ORDERS MODAL -->
+  <div id="my-orders-modal" onclick="closeMyOrders()" class="hidden fixed inset-0 cart-modal-bg flex items-start justify-center overflow-y-auto p-4 z-[60]">
+    <div onclick="event.stopPropagation()" class="cart-content w-full max-w-2xl p-6 rounded-2xl shadow-2xl my-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="font-bold text-orange-900 text-lg">📋 My Orders</h2>
+        <button onclick="closeMyOrders()" class="text-orange-700 hover:text-orange-900 text-xl">✕</button>
+      </div>
+      <div id="my-orders-list"></div>
+    </div>
+  </div>
+
+  <!-- FLOATING CHATBOT BUTTON -->
+  <button onclick="openChatbot()"
+    class="fixed bottom-6 left-6 bg-gradient-to-r from-orange-600 to-orange-700 text-white px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-40 flex items-center gap-2">
+    <span class="text-xl">💬</span>
+    <span class="font-bold text-sm hidden md:inline">Chat</span>
+  </button>
+
+  <!-- CART MODAL -->
+  <div id="cart-modal" onclick="closeCart()" class="hidden fixed inset-0 cart-modal-bg flex items-start justify-center overflow-y-auto p-4 z-[60]">
+    <div onclick="event.stopPropagation()" class="cart-content w-full max-w-md p-6 rounded-2xl shadow-2xl my-auto">
+      <h2 class="font-bold mb-4 text-orange-900">Shopping Cart</h2>
+      <div id="cart-items"></div>
+      <div class="mt-4 font-bold text-orange-900">
+        Total: Rp <span id="cart-total">0</span>
+      </div>
+      <div id="checkout-form-section" class="checkout-form-section mt-4">
+        <div class="checkout-field">
+          <label for="buyerName">Buyer Name</label>
+          <input
+            id="buyerName"
+            type="text"
+            class="checkout-input"
+            placeholder="Enter buyer name (optional)"
+          />
+        </div>
+
+        <div class="checkout-field">
+          <label for="buyerAddress">Buyer Address</label>
+          <textarea
+            id="buyerAddress"
+            class="checkout-input checkout-textarea"
+            rows="3"
+            placeholder="Enter buyer address"
+          ></textarea>
+          <p class="checkout-help">Address is required before checkout.</p>
+        </div>
+
+        <div class="checkout-field">
+          <label for="checkout-map">Select Location on Map</label>
+          <div id="checkout-map" class="checkout-map"></div>
+          <p id="checkout-location-text" class="checkout-location-text">
+            No location selected yet. Click the map to choose buyer coordinates.
+          </p>
+        </div>
+
+        <p id="checkout-error" class="checkout-error hidden"></p>
+      </div>
+      <div id="checkout-seller-contact" class="checkout-contact-box mt-4">
+        <div class="checkout-contact-title">Need to contact the seller?</div>
+        <div class="checkout-contact-text">
+          Seller contact: <span id="checkoutSellerContactText">6289518631090</span>
+        </div>
+        <a
+          id="checkoutWhatsappBtn"
+          class="whatsapp-btn mt-3"
+          href="https://wa.me/6289518631090"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          WhatsApp Seller
+        </a>
+      </div>
+      <button onclick="checkout()"
+        class="mt-4 w-full bg-orange-700 text-white py-3 rounded-xl font-bold hover:bg-orange-800 transition-colors">
+        Checkout
+      </button>
+      <button onclick="toggleCart()"
+        class="mt-2 w-full bg-orange-100 text-orange-800 py-2 rounded-xl border border-orange-300 hover:bg-orange-200 transition-colors">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+</div>
+
+  <!-- SELLER VIEW -->
+  <div id="seller-view" class="seller-view hidden max-w-5xl mx-auto p-6">
+    <h2 class="text-xl font-bold mb-4 text-white">Order Management</h2>
+
+    <div class="seller-info-card mb-6">
+      <div class="seller-card-banner">
+        <a
+          id="sellerStaticWhatsappBtn"
+          class="whatsapp-btn whatsapp-btn-floating"
+          href="https://wa.me/6289518631090"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          💬 WhatsApp
+        </a>
+      </div>
+
+      <div class="seller-card-body">
+        <div class="seller-card-main">
+          <div class="seller-avatar">👑</div>
+          <div class="seller-meta">
+            <div class="seller-name-row">
+              <h2 class="seller-name" id="sellerStaticName">KING Store</h2>
+              <span class="seller-status"><span class="pulse-dot"></span> Active</span>
+            </div>
+            <div class="seller-rating">
+              <span class="stars">⭐⭐⭐⭐⭐</span>
+              <span class="rating-text">4.9</span>
+              <span class="rating-divider">·</span>
+              <span class="rating-orders">Verified Seller</span>
+            </div>
+            <p class="seller-tagline">Manage your orders and serve customers with care 👑</p>
+          </div>
+        </div>
+
+        <div class="seller-info-chips">
+          <div class="seller-chip">
+            <div class="seller-chip-icon">🆔</div>
+            <div class="seller-chip-text">
+              <div class="seller-chip-label">Store ID</div>
+              <div class="seller-chip-value" id="sellerStaticId">KS-001</div>
+            </div>
+          </div>
+          <div class="seller-chip">
+            <div class="seller-chip-icon">📞</div>
+            <div class="seller-chip-text">
+              <div class="seller-chip-label">Contact</div>
+              <div class="seller-chip-value" id="sellerStaticContact">6289518631090</div>
+            </div>
+          </div>
+          <div class="seller-chip">
+            <div class="seller-chip-icon">⏰</div>
+            <div class="seller-chip-text">
+              <div class="seller-chip-label">Hours</div>
+              <div class="seller-chip-value">10:00 - 22:00</div>
+            </div>
+          </div>
+          <div class="seller-chip">
+            <div class="seller-chip-icon">📍</div>
+            <div class="seller-chip-text">
+              <div class="seller-chip-label">Location</div>
+              <div class="seller-chip-value">Jakarta</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="orders-list"></div>
+  </div>
+
+<!-- CHATBOT PANEL -->
+<div id="chatbot-panel" class="chatbot-panel fixed right-0 top-0 h-full w-80 shadow-2xl z-50 flex flex-col transform transition-transform duration-300">
+  <div class="bg-gradient-to-r from-orange-900 to-orange-700 text-white p-4 flex justify-between items-center">
+    <div class="font-bold">💬 Chatbot KING Store</div>
+    <button onclick="toggleChatbot()" class="text-white hover:text-orange-200">─</button>
+  </div>
+
+  <div id="chatbot-messages" class="flex-1 overflow-y-auto p-4" style="background: linear-gradient(180deg, #fff3e0 0%, #ffe0b2 100%);">
+    <div class="mb-3">
+      <div class="bg-orange-700 text-white inline-block px-4 py-2 rounded-2xl rounded-br-sm text-sm">
+        Hello! Please select the menu you want to order 👋
+      </div>
+    </div>
+
+    <div class="space-y-2 mb-3">
+      <p class="text-xs text-orange-700 font-medium">Select menu category:</p>
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="selectFromChatbot('soup')" class="bg-orange-100 hover:bg-orange-200 text-orange-800 px-3 py-2 rounded-lg text-xs font-medium transition-colors">🍲 Soup</button>
+        <button onclick="selectFromChatbot('fried rice')" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-2 rounded-lg text-xs font-medium transition-colors">🍛 Fried Rice</button>
+        <button onclick="selectFromChatbot('noodles')" class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-2 rounded-lg text-xs font-medium transition-colors">🍜 Noodles</button>
+        <button onclick="selectFromChatbot('drink')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-2 rounded-lg text-xs font-medium transition-colors">🧋 Drinks</button>
+        <button onclick="selectFromChatbot('sweet')" class="bg-pink-100 hover:bg-pink-200 text-pink-800 px-3 py-2 rounded-lg text-xs font-medium transition-colors">🍰 Dessert</button>
+        <button onclick="selectFromChatbot('snack')" class="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-2 rounded-lg text-xs font-medium transition-colors">🍟 Snack</button>
+        <button onclick="selectFromChatbot('under50')" class="bg-orange-100 hover:bg-orange-200 text-orange-800 px-3 py-2 rounded-lg text-xs font-medium transition-colors">💵 < 50rb</button>
+        <button onclick="selectFromChatbot('all')" class="bg-purple-100 hover:bg-purple-200 text-purple-800 px-3 py-2 rounded-lg text-xs font-medium transition-colors">🍽️ All Menu</button>
+      </div>
+    </div>
+
+    <div id="chatbot-selected-items" class="hidden mb-3">
+      <p class="text-xs text-orange-700 font-medium mb-2">Your order:</p>
+      <div id="chatbot-items-list" class="space-y-2"></div>
+    </div>
+
+    <div id="chatbot-total-section" class="hidden bg-gradient-to-r from-orange-700 to-orange-600 text-white p-3 rounded-xl mb-3">
+      <div class="flex justify-between items-center">
+        <span class="font-bold">Total:</span>
+        <span class="font-bold text-lg" id="chatbot-total">Rp 0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-4 border-t bg-white">
+    <button onclick="proceedToCart()" id="chatbot-proceed-btn"
+      class="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      disabled>
+      🛒 Proceed to Cart
+    </button>
+  </div>
+
+  <!-- Chat Input Form -->
+  <div class="p-4 border-t bg-white">
+    <form id="chat-form" class="flex gap-2">
+      <input id="chat-input" type="text" placeholder="Search menu..."
+        class="flex-1 p-2 border-2 border-orange-300 rounded-xl focus:outline-none focus:border-orange-600 text-sm"
+        autocomplete="off" />
+      <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-xl">🔍</button>
+    </form>
+  </div>
+</div>
+
+<button id="chatbot-toggle-btn" onclick="toggleChatbot()" class="fixed right-80 top-4 bg-orange-700 text-white px-4 py-2 rounded-l-xl shadow-lg z-40 hidden">
+  💬
+</button>
+
+</div>
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin=""
+></script>
+<script src="script.js"></script>
+</body>
+</html>
